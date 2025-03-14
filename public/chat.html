@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            width: 400px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+
+        #userList {
+            text-align: left;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .messages {
+            width: 100%;
+            height: 250px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            display: inline-block;
+        }
+
+        .message.sender {
+            background-color: #d1ffd6;
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .message.receiver {
+            background-color: #e3f2fd;
+            align-self: flex-start;
+        }
+
+        .input-area {
+            display: flex;
+        }
+
+        .input-area input {
+            flex-grow: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .input-area button {
+            padding: 8px 12px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .logout-btn {
+            margin-top: 15px;
+            background-color: #f44336;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h1>欢迎, <span id="usernameDisplay"></span> 🎉</h1>
+        <p>在线用户:</p>
+        <div id="userList">加载中...</div>
+
+        <div class="messages" id="messages"></div>
+        
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="输入消息">
+            <button onclick="sendMessage()">发送</button>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">退出登录</button>
+    </div>
+
+    <script>
+        const socket = io("http://localhost:3000"); // 连接服务器
+        let username = sessionStorage.getItem("currentUser"); 
+
+        if (!username) {
+            alert("请先登录！");
+            window.location.href = "login.html";
+        } else {
+            document.getElementById("usernameDisplay").innerText = username;
+            
+            // ✅ 只在 socket 连接成功后发送 join 事件
+            socket.on("connect", () => {
+                console.log("✅ 已连接到服务器");
+                socket.emit("join", username);
+            });
+        }
+
+        // ✅ 监听在线用户列表更新
+        socket.on("update-user-list", (users) => {
+            let userListDiv = document.getElementById("userList");
+            userListDiv.innerHTML = users.length > 0 ? users.join("<br>") : "暂无在线用户";
+        });
+
+        // ✅ 监听接收消息
+        socket.on("receive-message", (msg) => {
+            let messagesDiv = document.getElementById("messages");
+            let messageElement = document.createElement("div");
+
+            // ✅ 如果是自己发的消息，右对齐；否则左对齐
+            if (msg.sender === username) {
+                messageElement.className = "message sender";
+            } else {
+                messageElement.className = "message receiver";
+            }
+
+            messageElement.innerHTML = `<strong>${msg.sender}:</strong> ${msg.content}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        function sendMessage() {
+            let content = document.getElementById("messageInput").value.trim();
+            if (content === "") {
+                alert("请输入消息内容");
+                return;
+            }
+            socket.emit("send-message", { recipient: "", content });
+            document.getElementById("messageInput").value = "";
+        }
+
+        function logout() {
+            sessionStorage.removeItem("currentUser"); // ✅ 清除 sessionStorage
+            alert("你已退出登录！");
+            window.location.href = "login.html";
+        }
+
+        // ✅ 监听 Enter 键，按下时发送消息
+        document.getElementById("messageInput").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+</html>
