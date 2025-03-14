@@ -74,7 +74,6 @@
     </style>
 </head>
 <body>
-
     <div class="register-container">
         <h2>用户注册</h2>
         <form id="registerForm">
@@ -86,7 +85,10 @@
     </div>
 
     <script>
-        const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // ✅ Render 后端地址
+        // ✅ 自动选择 API 地址
+        const API_BASE_URL = window.location.hostname.includes("localhost") 
+            ? "http://localhost:3000" 
+            : "https://mychat-server-oa3i.onrender.com";
 
         document.getElementById("registerForm").addEventListener("submit", async function(event) {
             event.preventDefault();
@@ -121,7 +123,7 @@
                 }
             } catch (error) {
                 console.error("注册请求失败:", error);
-                alert("❌ 注册失败，请检查网络连接！");
+                alert("❌ 注册失败，请检查网络连接或后端服务器状态！");
             } finally {
                 registerBtn.disabled = false; // 🔄 恢复按钮状态
             }
@@ -135,6 +137,5 @@
             }
         });
     </script>
-
 </body>
 </html>
