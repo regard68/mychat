@@ -79,6 +79,9 @@
     </div>
 
     <script>
+        // ✅ 后端 API 地址 (替换为 Render 上的后端 URL)
+        const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // 🚀 修改为你的 Render 地址
+
         // ✅ 如果用户已登录，直接跳转到 `chat.html`
         if (sessionStorage.getItem("currentUser")) {
             window.location.href = "chat.html";
@@ -96,7 +99,7 @@
             }
 
             try {
-                let response = await fetch("http://localhost:3000/login", {
+                let response = await fetch(`${API_BASE_URL}/login`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
