@@ -125,8 +125,11 @@
     </div>
 
     <script>
-        const socket = io("http://localhost:3000"); // 连接服务器
-        let username = sessionStorage.getItem("currentUser"); 
+        // ✅ 更新后端地址
+        const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // 🚀 Render 部署的后端地址
+        const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
+
+        let username = sessionStorage.getItem("currentUser");
 
         if (!username) {
             alert("请先登录！");
@@ -134,7 +137,7 @@
         } else {
             document.getElementById("usernameDisplay").innerText = username;
             
-            // ✅ 只在 socket 连接成功后发送 join 事件
+            // ✅ 连接成功后发送 join 事件
             socket.on("connect", () => {
                 console.log("✅ 已连接到服务器");
                 socket.emit("join", username);
@@ -170,12 +173,12 @@
                 alert("请输入消息内容");
                 return;
             }
-            socket.emit("send-message", { recipient: "", content });
+            socket.emit("send-message", { content });
             document.getElementById("messageInput").value = "";
         }
 
         function logout() {
-            sessionStorage.removeItem("currentUser"); // ✅ 清除 sessionStorage
+            sessionStorage.removeItem("currentUser");
             alert("你已退出登录！");
             window.location.href = "login.html";
         }
@@ -186,6 +189,14 @@
                 event.preventDefault();
                 sendMessage();
             }
+        });
+
+        // ✅ 监听断线并自动重连
+        socket.on("disconnect", () => {
+            console.log("🔴 服务器连接断开，尝试重连...");
+            setTimeout(() => {
+                socket.connect();
+            }, 3000);
         });
     </script>
 

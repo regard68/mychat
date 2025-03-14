@@ -52,6 +52,11 @@
             background-color: #1e87db;
         }
 
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
         .link {
             margin-top: 15px;
             font-size: 14px;
@@ -75,15 +80,18 @@
         <form id="registerForm">
             <input type="text" id="newUsername" placeholder="请输入用户名" required>
             <input type="password" id="newPassword" placeholder="请输入密码" required>
-            <button type="submit" class="btn">注册</button>
+            <button type="submit" class="btn" id="registerBtn">注册</button>
         </form>
         <p class="link">已有账号？<a href="login.html" class="login-link">去登录</a></p>
     </div>
 
     <script>
+        const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // ✅ Render 后端地址
+
         document.getElementById("registerForm").addEventListener("submit", async function(event) {
             event.preventDefault();
 
+            let registerBtn = document.getElementById("registerBtn");
             let newUsername = document.getElementById("newUsername").value.trim();
             let newPassword = document.getElementById("newPassword").value.trim();
 
@@ -92,8 +100,10 @@
                 return;
             }
 
+            registerBtn.disabled = true; // 🚀 防止重复点击
+
             try {
-                let response = await fetch("http://localhost:3000/register", {
+                let response = await fetch(`${API_BASE_URL}/register`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -104,14 +114,24 @@
                 let data = await response.json();
 
                 if (response.ok) {
-                    alert(data.message);
-                    window.location.href = "login.html"; // ✅ 注册成功后跳转到登录页面
+                    alert("🎉 注册成功！请登录");
+                    window.location.href = "login.html"; // ✅ 跳转到登录页面
                 } else {
-                    alert(data.message); // 显示服务器返回的错误消息
+                    alert(`⚠️ ${data.message}`); // ❌ 显示服务器返回的错误消息
                 }
             } catch (error) {
                 console.error("注册请求失败:", error);
-                alert("注册失败，请检查网络连接！");
+                alert("❌ 注册失败，请检查网络连接！");
+            } finally {
+                registerBtn.disabled = false; // 🔄 恢复按钮状态
+            }
+        });
+
+        // ✅ 监听 Enter 键，按下时提交表单
+        document.getElementById("registerForm").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("registerBtn").click();
             }
         });
     </script>
