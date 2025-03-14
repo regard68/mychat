@@ -2,10 +2,23 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=public/login.html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>正在跳转...</title>
+    <script>
+        // 确保兼容 GitHub Pages 和 Render 部署
+        window.onload = function() {
+            let targetPath = "public/login.html";
+            if (window.location.hostname.includes("github.io")) {
+                targetPath = "mychat/public/login.html"; // 替换成你的 GitHub Pages 路径
+            }
+            window.location.href = targetPath;
+        };
+    </script>
 </head>
 <body>
-    <p>如果没有自动跳转，请点击 <a href="public/login.html">这里</a>。</p>
+    <p>如果没有自动跳转，请点击 <a id="redirectLink" href="public/login.html">这里</a>。</p>
+    <script>
+        document.getElementById("redirectLink").href = window.location.hostname.includes("github.io") ? "mychat/public/login.html" : "public/login.html";
+    </script>
 </body>
 </html>
