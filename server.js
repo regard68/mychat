@@ -5,6 +5,7 @@ const cors = require("cors");
 const path = require("path");
 
 const app = express();
+const PORT = process.env.PORT || 3000; // ✅ 监听 Render 分配的端口
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: { origin: "*" }
@@ -18,13 +19,13 @@ const publicPath = path.join(__dirname, "public");
 console.log("✅ 静态文件目录:", publicPath);
 app.use(express.static(publicPath));
 
-// ✅ 访问 `http://localhost:3000/` 时默认加载 `login.html`
+// ✅ 访问 `/` 时默认加载 `login.html`
 app.get("/", (req, res) => {
     console.log("✅ 访问 /，返回 login.html");
     res.sendFile(path.join(publicPath, "login.html"));
 });
 
-// ✅ 确保 `chat.html` 可以正确访问
+// ✅ 访问 `/chat` 时返回 `chat.html`
 app.get("/chat", (req, res) => {
     console.log("✅ 访问 /chat，返回 chat.html");
     res.sendFile(path.join(publicPath, "chat.html"));
@@ -66,7 +67,7 @@ app.use((req, res, next) => {
 let onlineUsers = {}; // 存储在线用户
 let messages = []; // 存储聊天记录
 
-// 监听 WebSocket 连接
+// ✅ WebSocket 连接
 io.on("connection", (socket) => {
     console.log("✅ 新用户连接:", socket.id);
 
@@ -102,7 +103,7 @@ io.on("connection", (socket) => {
     });
 });
 
-// 启动服务器
-server.listen(3000, () => {
-    console.log("✅ 服务器运行在 http://localhost:3000");
+// ✅ 监听 PORT 并启动服务器
+server.listen(PORT, () => {
+    console.log(`✅ 服务器运行在端口 ${PORT}`);
 });
