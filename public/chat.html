@@ -126,7 +126,7 @@
 
     <script>
         // ✅ 更新后端地址
-        const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // 🚀 Render 部署的后端地址
+        const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // 你的 Render 地址
         const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
 
         let username = sessionStorage.getItem("currentUser");
@@ -137,12 +137,26 @@
         } else {
             document.getElementById("usernameDisplay").innerText = username;
             
-            // ✅ 连接成功后发送 join 事件
             socket.on("connect", () => {
                 console.log("✅ 已连接到服务器");
                 socket.emit("join", username);
             });
         }
+
+        // ✅ 接收历史聊天记录
+        socket.on("load-messages", (messages) => {
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML = "";
+
+            messages.forEach((msg) => {
+                const messageElement = document.createElement("div");
+                messageElement.className = msg.sender === username ? "message sender" : "message receiver";
+                messageElement.innerHTML = `<strong>${msg.sender}:</strong> ${msg.content}`;
+                messagesDiv.appendChild(messageElement);
+            });
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
 
         // ✅ 监听在线用户列表更新
         socket.on("update-user-list", (users) => {
@@ -150,18 +164,12 @@
             userListDiv.innerHTML = users.length > 0 ? users.join("<br>") : "暂无在线用户";
         });
 
-        // ✅ 监听接收消息
+        // ✅ 监听实时接收消息
         socket.on("receive-message", (msg) => {
             let messagesDiv = document.getElementById("messages");
             let messageElement = document.createElement("div");
 
-            // ✅ 如果是自己发的消息，右对齐；否则左对齐
-            if (msg.sender === username) {
-                messageElement.className = "message sender";
-            } else {
-                messageElement.className = "message receiver";
-            }
-
+            messageElement.className = msg.sender === username ? "message sender" : "message receiver";
             messageElement.innerHTML = `<strong>${msg.sender}:</strong> ${msg.content}`;
             messagesDiv.appendChild(messageElement);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -183,7 +191,6 @@
             window.location.href = "login.html";
         }
 
-        // ✅ 监听 Enter 键，按下时发送消息
         document.getElementById("messageInput").addEventListener("keydown", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -191,9 +198,9 @@
             }
         });
 
-        // ✅ 监听断线并自动重连
+        // ✅ 自动重连
         socket.on("disconnect", () => {
-            console.log("🔴 服务器连接断开，尝试重连...");
+            console.log("🔴 连接断开，尝试重连...");
             setTimeout(() => {
                 socket.connect();
             }, 3000);
