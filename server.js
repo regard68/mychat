@@ -15,16 +15,16 @@ const io = socketIo(server, {
 app.use(express.json());
 app.use(cors());
 
-// ✅ 设置静态文件目录
+// ⬆️ 设置静态文件目录
 const publicPath = path.join(__dirname, "public");
 console.log("✅ 静态文件目录:", publicPath);
 app.use(express.static(publicPath));
 
-// ✅ 数据库连接配置
+// ⬆️ 数据库连接配置
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '你的密码', // ⚠️ 替换为你自己的密码
+    password: '你的密码', // ⚠️ 请换成你自己的密码
     database: 'loginusers'
 });
 
@@ -36,13 +36,13 @@ db.connect(err => {
     console.log("✅ 成功连接 MySQL 数据库！");
 });
 
-// ✅ 访问 `/` 时默认加载 `login.html`
+// ⬆️ 访问 `/` 时默认返回 login.html
 app.get("/", (req, res) => res.sendFile(path.join(publicPath, "login.html")));
 
-// ✅ 访问 `/chat` 时返回 `chat.html`
+// ⬆️ 访问 `/chat` 返回 chat.html
 app.get("/chat", (req, res) => res.sendFile(path.join(publicPath, "chat.html")));
 
-// ✅ 用户注册
+// ⬆️ 用户注册
 app.post("/register", (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ message: "用户名或密码不能为空" });
@@ -60,10 +60,9 @@ app.post("/register", (req, res) => {
     });
 });
 
-// ✅ 用户登录
+// ⬆️ 用户登录
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
-
     const sql = "SELECT * FROM users WHERE username = ? AND password = ?";
     db.query(sql, [username, password], (err, results) => {
         if (err) return res.status(500).json({ message: "服务器错误" });
@@ -74,7 +73,7 @@ app.post("/login", (req, res) => {
     });
 });
 
-// ✅ 监听所有请求路径，方便调试
+// ⬆️ 调试时输出请求
 app.use((req, res, next) => {
     console.log("🔍 收到请求:", req.method, req.url);
     next();
@@ -82,16 +81,15 @@ app.use((req, res, next) => {
 
 let onlineUsers = {}; // 存储在线用户
 
-// ✅ WebSocket 连接
+// ⬆️ WebSocket 连接
 io.on("connection", (socket) => {
     console.log("✅ 新用户连接:", socket.id);
 
-    // 用户加入聊天
     socket.on("join", (username) => {
         onlineUsers[socket.id] = username;
         io.emit("update-user-list", Object.values(onlineUsers));
 
-        // ✅ 从数据库读取历史消息
+        // 获取历史消息
         const sql = "SELECT * FROM messages ORDER BY id DESC LIMIT 50";
         db.query(sql, (err, results) => {
             if (!err) {
@@ -102,14 +100,11 @@ io.on("connection", (socket) => {
         console.log(`🔵 用户 ${username} 加入聊天`);
     });
 
-    // 发送消息
     socket.on("send-message", ({ content }) => {
         let sender = onlineUsers[socket.id] || "匿名用户";
         let timestamp = new Date().toLocaleString();
 
         const msg = { sender, content, timestamp };
-
-        // ✅ 存入数据库
         const sql = "INSERT INTO messages (sender, content, timestamp) VALUES (?, ?, ?)";
         db.query(sql, [sender, content, timestamp], (err) => {
             if (err) console.error("❌ 消息写入失败:", err);
@@ -119,7 +114,6 @@ io.on("connection", (socket) => {
         console.log(`📩 消息发送: ${sender}: ${content}`);
     });
 
-    // 监听断开连接
     socket.on("disconnect", () => {
         console.log(`🔴 用户 ${onlineUsers[socket.id]} 断开连接`);
         delete onlineUsers[socket.id];
@@ -127,7 +121,7 @@ io.on("connection", (socket) => {
     });
 });
 
-// ✅ 启动服务器
+// ⬆️ 启动服务
 server.listen(PORT, () => {
     console.log(`✅ 服务器运行在端口 ${PORT}`);
 });
