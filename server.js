@@ -24,7 +24,7 @@ app.use(express.static(publicPath));
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '你的密码', // ⚠️ 请换成你自己的密码
+    password: '123456',
     database: 'loginusers'
 });
 
