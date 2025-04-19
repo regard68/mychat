@@ -1,141 +1,144 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>用户注册</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0faff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户注册</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f0faff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
 
-        .register-container {
-            width: 350px;
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+    .register-container {
+      width: 90%;
+      max-width: 400px;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
+    }
 
-        h2 {
-            color: #2196F3;
-            margin-bottom: 20px;
-        }
+    h2 {
+      color: #2196F3;
+      margin-bottom: 20px;
+    }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
 
-        .btn {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: none;
-            background-color: #2196F3;
-            color: #fff;
-        }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background-color: #2196F3;
+      color: #fff;
+    }
 
-        .btn:hover {
-            background-color: #1e87db;
-        }
+    .btn:hover {
+      background-color: #1e88e5;
+    }
 
-        .btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
+    .btn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
 
-        .link {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #888;
-        }
+    .link {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #666;
+    }
 
-        .login-link {
-            color: #4caf50;
-            text-decoration: none;
-        }
+    .login-link {
+      color: #4caf50;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-        .login-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    .login-link:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="register-container">
-        <h2>用户注册</h2>
-        <form id="registerForm">
-            <input type="text" id="newUsername" placeholder="请输入用户名" required>
-            <input type="password" id="newPassword" placeholder="请输入密码" required>
-            <button type="submit" class="btn" id="registerBtn">注册</button>
-        </form>
-        <p class="link">已有账号？<a href="login.html" class="login-link">去登录</a></p>
-    </div>
+  <div class="register-container">
+    <h2>用户注册</h2>
+    <form id="registerForm">
+      <input type="text" id="newUsername" placeholder="请输入用户名" required>
+      <input type="password" id="newPassword" placeholder="请输入密码" required>
+      <button type="submit" class="btn" id="registerBtn">注册</button>
+    </form>
+    <p class="link">已有账号？<a href="login.html" class="login-link">去登录</a></p>
+  </div>
 
-    <script>
-        // ✅ 自动选择 API 地址
-        const API_BASE_URL = window.location.hostname.includes("localhost") 
-            ? "http://localhost:3000" 
-            : "https://mychat-server-oa3i.onrender.com";
+  <script>
+    const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // 你的后端地址
 
-        document.getElementById("registerForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
+    document.getElementById("registerForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
 
-            let registerBtn = document.getElementById("registerBtn");
-            let newUsername = document.getElementById("newUsername").value.trim();
-            let newPassword = document.getElementById("newPassword").value.trim();
+      let registerBtn = document.getElementById("registerBtn");
+      let newUsername = document.getElementById("newUsername").value.trim();
+      let newPassword = document.getElementById("newPassword").value.trim();
 
-            if (!newUsername || !newPassword) {
-                alert("用户名或密码不能为空！");
-                return;
-            }
+      if (!newUsername || !newPassword) {
+        alert("用户名或密码不能为空！");
+        return;
+      }
 
-            registerBtn.disabled = true; // 🚀 防止重复点击
+      registerBtn.disabled = true;
 
-            try {
-                let response = await fetch(`${API_BASE_URL}/register`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ username: newUsername, password: newPassword })
-                });
-
-                let data = await response.json();
-
-                if (response.ok) {
-                    alert("🎉 注册成功！请登录");
-                    window.location.href = "login.html"; // ✅ 跳转到登录页面
-                } else {
-                    alert(`⚠️ ${data.message}`); // ❌ 显示服务器返回的错误消息
-                }
-            } catch (error) {
-                console.error("注册请求失败:", error);
-                alert("❌ 注册失败，请检查网络连接或后端服务器状态！");
-            } finally {
-                registerBtn.disabled = false; // 🔄 恢复按钮状态
-            }
+      try {
+        let response = await fetch(`${API_BASE_URL}/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username: newUsername, password: newPassword })
         });
 
-        // ✅ 监听 Enter 键，按下时提交表单
-        document.getElementById("registerForm").addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                document.getElementById("registerBtn").click();
-            }
-        });
-    </script>
+        let data = await response.json();
+
+        if (response.ok) {
+          alert("🎉 注册成功！请登录");
+          window.location.href = "login.html";
+        } else {
+          alert(`⚠️ ${data.message}`);
+        }
+      } catch (error) {
+        console.error("注册请求失败:", error);
+        alert("❌ 注册失败，请检查网络连接！");
+      } finally {
+        registerBtn.disabled = false;
+      }
+    });
+
+    document.getElementById("registerForm").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("registerBtn").click();
+      }
+    });
+  </script>
+
 </body>
 </html>

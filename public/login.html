@@ -1,127 +1,136 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>用户登录</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0faff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户登录</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f0faff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
 
-        .login-container {
-            width: 350px;
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+    .login-container {
+      width: 90%;
+      max-width: 400px;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
+    }
 
-        h2 {
-            color: #4caf50;
-            margin-bottom: 20px;
-        }
+    h2 {
+      color: #4caf50;
+      margin-bottom: 20px;
+    }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
 
-        .btn {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: none;
-            margin-top: 10px;
-        }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      margin-top: 10px;
+    }
 
-        .login-btn {
-            background-color: #4caf50;
-            color: #fff;
-        }
+    .login-btn {
+      background-color: #4caf50;
+      color: #fff;
+    }
 
-        .login-btn:hover {
-            background-color: #449d48;
-        }
+    .login-btn:hover {
+      background-color: #43a047;
+    }
 
-        .register-btn {
-            background-color: #2196F3;
-            color: #fff;
-        }
+    .register-btn {
+      background-color: #2196F3;
+      color: #fff;
+    }
 
-        .register-btn:hover {
-            background-color: #1e87db;
-        }
-    </style>
+    .register-btn:hover {
+      background-color: #1e88e5;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <h2>用户登录</h2>
-        <form id="loginForm">
-            <input type="text" id="username" placeholder="请输入用户名" required>
-            <input type="password" id="password" placeholder="请输入密码" required>
-            <button type="submit" class="btn login-btn">登录</button>
-        </form>
-        <button class="btn register-btn" onclick="window.location.href='register.html'">去注册</button>
-    </div>
+  <div class="login-container">
+    <h2>用户登录</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="请输入用户名" required>
+      <input type="password" id="password" placeholder="请输入密码" required>
+      <button type="submit" class="btn login-btn">登录</button>
+    </form>
+    <button class="btn register-btn" onclick="window.location.href='register.html'">去注册</button>
+  </div>
 
-    <script>
-        // ✅ 后端 API 地址 (替换为 Render 上的后端 URL)
-        const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // 🚀 修改为你的 Render 地址
+  <script>
+    const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // 你的服务器地址
 
-        // ✅ 如果用户已登录，直接跳转到 `chat.html`
-        if (sessionStorage.getItem("currentUser")) {
-            window.location.href = "chat.html";
-        }
+    // ✅ 如果已经登录，自动跳转到聊天页
+    if (sessionStorage.getItem("currentUser")) {
+      window.location.href = "chat.html";
+    }
 
-        document.getElementById("loginForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
+    // ✅ 如果之前登录过，自动填充用户名
+    if (localStorage.getItem("savedUsername")) {
+      document.getElementById("username").value = localStorage.getItem("savedUsername");
+    }
 
-            let username = document.getElementById("username").value.trim();
-            let password = document.getElementById("password").value.trim();
+    document.getElementById("loginForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
 
-            if (!username || !password) {
-                alert("用户名或密码不能为空！");
-                return;
-            }
+      let username = document.getElementById("username").value.trim();
+      let password = document.getElementById("password").value.trim();
 
-            try {
-                let response = await fetch(`${API_BASE_URL}/login`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ username, password })
-                });
+      if (!username || !password) {
+        alert("用户名或密码不能为空！");
+        return;
+      }
 
-                let data = await response.json();
-
-                if (response.ok) {
-                    sessionStorage.setItem("currentUser", data.username); // ✅ 存储当前用户
-                    alert(data.message);
-                    window.location.href = "chat.html"; // ✅ 登录成功跳转到聊天页面
-                } else {
-                    alert(data.message); // 显示错误消息（如密码错误）
-                }
-            } catch (error) {
-                console.error("登录请求失败:", error);
-                alert("登录失败，请检查网络连接！");
-            }
+      try {
+        let response = await fetch(`${API_BASE_URL}/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username, password })
         });
-    </script>
+
+        let data = await response.json();
+
+        if (response.ok) {
+          sessionStorage.setItem("currentUser", data.username); // 临时保存
+          localStorage.setItem("savedUsername", username); // ✅ 永久保存用户名
+          alert(data.message);
+          window.location.href = "chat.html";
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        console.error("登录请求失败:", error);
+        alert("登录失败，请检查网络连接！");
+      }
+    });
+  </script>
 
 </body>
 </html>
