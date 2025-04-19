@@ -15,6 +15,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      overflow: hidden;
     }
 
     .chat-container {
@@ -27,11 +28,13 @@
       display: flex;
       flex-direction: column;
       height: 95vh;
+      position: relative;
     }
 
     .chat-header {
       text-align: center;
       margin-bottom: 10px;
+      position: relative;
     }
 
     .chat-header h1 {
@@ -44,6 +47,23 @@
       margin: 5px 0 10px;
       font-size: 14px;
       color: #777;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: #bbb;
+      font-size: 22px;
+      cursor: pointer;
+      transition: color 0.2s, transform 0.1s;
+    }
+
+    .logout-btn:hover {
+      color: #f44336;
+      transform: scale(1.1);
     }
 
     #userList {
@@ -75,7 +95,6 @@
       word-wrap: break-word;
       font-size: 15px;
       line-height: 1.4;
-      position: relative;
       transition: background-color 0.2s;
     }
 
@@ -83,7 +102,7 @@
       align-self: flex-end;
       background-color: #dcf8c6;
       color: #333;
-      border-bottom-right-radius: 2px;
+      border-bottom-right-radius: 4px;
       text-align: right;
     }
 
@@ -92,20 +111,20 @@
       background-color: #ffffff;
       border: 1px solid #ddd;
       color: #333;
-      border-bottom-left-radius: 2px;
+      border-bottom-left-radius: 4px;
       text-align: left;
     }
 
     .input-area {
       display: flex;
       gap: 8px;
-      margin-top: auto;
+      align-items: center;
     }
 
     .input-area input {
       flex-grow: 1;
       padding: 12px;
-      border-radius: 12px;
+      border-radius: 20px;
       border: 1px solid #ccc;
       font-size: 14px;
       transition: border-color 0.2s;
@@ -120,7 +139,7 @@
       color: white;
       padding: 12px 16px;
       border: none;
-      border-radius: 12px;
+      border-radius: 20px;
       font-size: 14px;
       cursor: pointer;
       transition: background-color 0.2s, transform 0.1s;
@@ -130,21 +149,6 @@
       background-color: #43a047;
       transform: scale(0.96);
     }
-
-    .logout-btn {
-      margin-top: 12px;
-      background-color: #f44336;
-      color: white;
-      padding: 10px 14px;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .logout-btn:hover {
-      background-color: #d32f2f;
-    }
   </style>
 </head>
 
@@ -153,6 +157,7 @@
   <div class="chat-container">
     <div class="chat-header">
       <h1>MyChat 聊天室</h1>
+      <button class="logout-btn" onclick="logout()">⎋</button>
       <p>欢迎 <span id="usernameDisplay"></span> 🎉</p>
     </div>
 
@@ -164,8 +169,6 @@
       <input type="text" id="messageInput" placeholder="输入消息...">
       <button onclick="sendMessage()">发送</button>
     </div>
-
-    <button class="logout-btn" onclick="logout()">退出登录</button>
   </div>
 
   <script>
@@ -179,7 +182,6 @@
       window.location.href = "login.html";
     } else {
       document.getElementById("usernameDisplay").innerText = username;
-
       socket.on("connect", () => {
         console.log("✅ 已连接到服务器");
         socket.emit("join", username);
