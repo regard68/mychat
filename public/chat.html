@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>聊天室</title>
+  <title>MyChat 聊天室</title>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <style>
     body {
@@ -20,85 +20,115 @@
     .chat-container {
       width: 90%;
       max-width: 480px;
-      background-color: #ffffff;
+      background: #ffffff;
       padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
       display: flex;
       flex-direction: column;
-      height: 90vh;
+      height: 95vh;
     }
 
-    h1 {
-      color: #4caf50;
-      font-size: 24px;
-      margin: 0 0 10px 0;
+    .chat-header {
       text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .chat-header h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #4caf50;
+    }
+
+    .chat-header p {
+      margin: 5px 0 10px;
+      font-size: 14px;
+      color: #777;
     }
 
     #userList {
-      font-size: 14px;
       background: #e3f2fd;
+      border-radius: 12px;
       padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      overflow-y: auto;
+      font-size: 14px;
       max-height: 80px;
+      overflow-y: auto;
+      margin-bottom: 10px;
     }
 
     .messages {
       flex: 1;
       overflow-y: auto;
-      border: 1px solid #ddd;
+      background: #f5f5f5;
       padding: 10px;
-      background: #fafafa;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 10px;
       display: flex;
       flex-direction: column;
     }
 
     .message {
-      max-width: 75%;
-      padding: 8px 12px;
+      max-width: 70%;
+      padding: 10px 14px;
       margin: 6px 0;
-      border-radius: 10px;
+      border-radius: 18px;
       word-wrap: break-word;
-      font-size: 14px;
+      font-size: 15px;
+      line-height: 1.4;
+      position: relative;
+      transition: background-color 0.2s;
     }
 
     .message.sender {
-      background-color: #d1ffd6;
       align-self: flex-end;
+      background-color: #dcf8c6;
+      color: #333;
+      border-bottom-right-radius: 2px;
       text-align: right;
     }
 
     .message.receiver {
-      background-color: #e3f2fd;
       align-self: flex-start;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      color: #333;
+      border-bottom-left-radius: 2px;
+      text-align: left;
     }
 
     .input-area {
       display: flex;
       gap: 8px;
+      margin-top: auto;
     }
 
     .input-area input {
       flex-grow: 1;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 12px;
+      border-radius: 12px;
       border: 1px solid #ccc;
       font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .input-area input:focus {
+      border-color: #4caf50;
     }
 
     .input-area button {
-      padding: 10px 14px;
-      border: none;
-      border-radius: 8px;
       background-color: #4caf50;
       color: white;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
       font-size: 14px;
       cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .input-area button:active {
+      background-color: #43a047;
+      transform: scale(0.96);
     }
 
     .logout-btn {
@@ -107,7 +137,7 @@
       color: white;
       padding: 10px 14px;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 14px;
       cursor: pointer;
     }
@@ -121,13 +151,17 @@
 <body>
 
   <div class="chat-container">
-    <h1>欢迎, <span id="usernameDisplay"></span> 🎉</h1>
+    <div class="chat-header">
+      <h1>MyChat 聊天室</h1>
+      <p>欢迎 <span id="usernameDisplay"></span> 🎉</p>
+    </div>
+
     <div id="userList">加载中...</div>
 
     <div class="messages" id="messages"></div>
 
     <div class="input-area">
-      <input type="text" id="messageInput" placeholder="输入消息">
+      <input type="text" id="messageInput" placeholder="输入消息...">
       <button onclick="sendMessage()">发送</button>
     </div>
 
@@ -135,7 +169,7 @@
   </div>
 
   <script>
-    const API_BASE_URL = "https://mychat-server-oa3i.onrender.com"; // 后端地址
+    const API_BASE_URL = "https://mychat-server-oa3i.onrender.com";
     const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
 
     let username = sessionStorage.getItem("currentUser");
