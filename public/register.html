@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>MyChat 注册账号</title>
   <style>
     body {
@@ -22,13 +22,15 @@
       background: #fff;
       padding: 40px 30px;
       border-radius: 20px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       text-align: center;
+      display: flex;
+      flex-direction: column;
     }
 
     .logo {
       font-size: 36px;
-      font-weight: 600;
+      font-weight: bold;
       color: #2196F3;
       margin-bottom: 5px;
       letter-spacing: 1px;
@@ -37,20 +39,20 @@
     .subtitle {
       font-size: 16px;
       color: #777;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
 
     input {
       width: 100%;
       padding: 14px;
       margin-bottom: 20px;
-      border: 1px solid #d0d0d0;
+      border: 1px solid #ccc;
       border-radius: 12px;
       background-color: #f5f5f5;
       box-sizing: border-box;
       font-size: 16px;
-      outline: none;
       transition: all 0.2s;
+      outline: none;
     }
 
     input:focus {
@@ -66,18 +68,20 @@
       cursor: pointer;
       border: none;
       margin-top: 10px;
-      transition: background-color 0.2s;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-primary {
       background-color: #2196F3;
       color: #fff;
     }
 
-    .btn:hover {
+    .btn-primary:hover {
       background-color: #1e88e5;
     }
 
-    .btn:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
+    .btn-primary:active {
+      transform: scale(0.97);
     }
 
     .link {
@@ -98,8 +102,8 @@
 
     .bottom-text {
       margin-top: 20px;
-      font-size: 13px;
-      color: #aaa;
+      font-size: 12px;
+      color: #bbb;
     }
   </style>
 </head>
@@ -113,10 +117,11 @@
     <form id="registerForm">
       <input type="text" id="newUsername" placeholder="请输入用户名" required>
       <input type="password" id="newPassword" placeholder="请输入密码" required>
-      <button type="submit" class="btn" id="registerBtn">注册账号</button>
+      <button type="submit" class="btn btn-primary" id="registerBtn">注册账号</button>
     </form>
 
     <p class="link">已有账号？<a href="login.html" class="login-link">立即登录</a></p>
+
     <div class="bottom-text">© 2025 MyChat</div>
   </div>
 
@@ -140,9 +145,7 @@
       try {
         let response = await fetch(`${API_BASE_URL}/register`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username: newUsername, password: newPassword })
         });
 

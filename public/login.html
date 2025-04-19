@@ -3,235 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>MyChat 聊天室</title>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <title>MyChat 聊天室登录</title>
   <style>
-    html, body {
-      height: 100%;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f9fafb;
       margin: 0;
       padding: 0;
-      background: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      overflow: hidden; /* 不让整个屏幕滚动 */
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    .chat-container {
-      position: relative;
+    .login-container {
       width: 90%;
       max-width: 400px;
-      height: 95vh;
-      background: #ffffff;
-      padding: 20px 15px 10px;
+      background: #fff;
+      padding: 40px 30px;
       border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden; /* 固定内容 */
-    }
-
-    .chat-header {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       text-align: center;
-      margin-bottom: 5px;
-      position: relative;
-    }
-
-    .chat-header h1 {
-      margin: 0;
-      font-size: 22px;
-      color: #4caf50;
-    }
-
-    .logout-btn {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: transparent;
-      border: none;
-      font-size: 14px;
-      color: #999;
-      cursor: pointer;
-      padding: 5px 8px;
-    }
-
-    .logout-btn:hover {
-      color: #f44336;
-    }
-
-    #userList {
-      background: #e3f2fd;
-      border-radius: 12px;
-      padding: 8px;
-      font-size: 13px;
-      max-height: 70px;
-      overflow-y: auto;
-      margin-bottom: 10px;
-    }
-
-    .messages {
-      flex: 1;
-      overflow-y: auto;
-      background: #f5f5f5;
-      padding: 10px;
-      border-radius: 12px;
       display: flex;
       flex-direction: column;
-      margin-bottom: 10px;
     }
 
-    .message {
-      max-width: 75%;
-      padding: 10px 14px;
-      margin: 6px 0;
-      border-radius: 18px;
-      word-wrap: break-word;
-      font-size: 15px;
-      line-height: 1.4;
-      transition: all 0.2s;
+    .logo {
+      font-size: 36px;
+      font-weight: bold;
+      color: #4caf50;
+      margin-bottom: 5px;
+      letter-spacing: 1px;
     }
 
-    .message.sender {
-      align-self: flex-end;
-      background-color: #dcf8c6;
-      color: #333;
-      border-bottom-right-radius: 4px;
-      text-align: right;
+    .subtitle {
+      font-size: 16px;
+      color: #888;
+      margin-bottom: 30px;
     }
 
-    .message.receiver {
-      align-self: flex-start;
-      background-color: #ffffff;
-      border: 1px solid #ddd;
-      color: #333;
-      border-bottom-left-radius: 4px;
-      text-align: left;
-    }
-
-    .input-area {
-      display: flex;
-      gap: 8px;
-      padding-top: 5px;
-    }
-
-    .input-area input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 12px;
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
       border: 1px solid #ccc;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-
-    .input-area input:focus {
-      border-color: #4caf50;
-    }
-
-    .input-area button {
-      background-color: #4caf50;
-      color: white;
-      border: none;
       border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 14px;
+      background-color: #f5f5f5;
+      box-sizing: border-box;
+      font-size: 16px;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #4caf50;
+      background-color: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 12px;
       cursor: pointer;
+      border: none;
       transition: background-color 0.2s, transform 0.1s;
     }
 
-    .input-area button:active {
+    .login-btn {
+      background-color: #4caf50;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
       background-color: #43a047;
-      transform: scale(0.96);
+    }
+
+    .login-btn:active {
+      transform: scale(0.97);
+    }
+
+    .register-btn {
+      background-color: #2196F3;
+      color: #fff;
+      margin-top: 12px;
+    }
+
+    .register-btn:hover {
+      background-color: #1e88e5;
+    }
+
+    .register-btn:active {
+      transform: scale(0.97);
+    }
+
+    .bottom-text {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #bbb;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="chat-container">
-    <div class="chat-header">
-      <h1>MyChat</h1>
-      <button class="logout-btn" onclick="logout()">退出</button>
-    </div>
+  <div class="login-container">
+    <div class="logo">MyChat</div>
+    <div class="subtitle">轻松、安全的在线聊天室</div>
 
-    <div id="userList">加载中...</div>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="请输入用户名" required>
+      <input type="password" id="password" placeholder="请输入密码" required>
+      <button type="submit" class="btn login-btn">立即登录</button>
+    </form>
 
-    <div class="messages" id="messages"></div>
+    <button class="btn register-btn" onclick="window.location.href='register.html'">注册新账号</button>
 
-    <div class="input-area">
-      <input type="text" id="messageInput" placeholder="输入消息...">
-      <button onclick="sendMessage()">发送</button>
-    </div>
+    <div class="bottom-text">© 2025 MyChat. 保留所有权利.</div>
   </div>
 
   <script>
     const API_BASE_URL = "https://mychat-server-oa3i.onrender.com";
-    const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
 
-    let username = sessionStorage.getItem("currentUser");
-
-    if (!username) {
-      alert("请先登录！");
-      window.location.href = "login.html";
-    } else {
-      socket.on("connect", () => {
-        socket.emit("join", username);
-      });
+    if (sessionStorage.getItem("currentUser")) {
+      window.location.href = "chat.html";
     }
 
-    socket.on("load-messages", (messages) => {
-      const messagesDiv = document.getElementById("messages");
-      messagesDiv.innerHTML = "";
+    if (localStorage.getItem("savedUsername")) {
+      document.getElementById("username").value = localStorage.getItem("savedUsername");
+    }
 
-      messages.forEach((msg) => {
-        const messageElement = document.createElement("div");
-        messageElement.className = msg.sender === username ? "message sender" : "message receiver";
-        messageElement.innerHTML = `<strong>${msg.sender}:</strong> ${msg.content}`;
-        messagesDiv.appendChild(messageElement);
-      });
+    document.getElementById("loginForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
 
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    });
+      let username = document.getElementById("username").value.trim();
+      let password = document.getElementById("password").value.trim();
 
-    socket.on("update-user-list", (users) => {
-      let userListDiv = document.getElementById("userList");
-      userListDiv.innerHTML = users.length > 0 ? users.join("<br>") : "暂无在线用户";
-    });
-
-    socket.on("receive-message", (msg) => {
-      let messagesDiv = document.getElementById("messages");
-      let messageElement = document.createElement("div");
-      messageElement.className = msg.sender === username ? "message sender" : "message receiver";
-      messageElement.innerHTML = `<strong>${msg.sender}:</strong> ${msg.content}`;
-      messagesDiv.appendChild(messageElement);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    });
-
-    function sendMessage() {
-      let content = document.getElementById("messageInput").value.trim();
-      if (content === "") {
-        alert("请输入消息内容");
+      if (!username || !password) {
+        alert("用户名或密码不能为空！");
         return;
       }
-      socket.emit("send-message", { content });
-      document.getElementById("messageInput").value = "";
-    }
 
-    function logout() {
-      sessionStorage.removeItem("currentUser");
-      alert("你已退出登录！");
-      window.location.href = "login.html";
-    }
+      try {
+        let response = await fetch(`${API_BASE_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
 
-    document.getElementById("messageInput").addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        sendMessage();
+        let data = await response.json();
+
+        if (response.ok) {
+          sessionStorage.setItem("currentUser", data.username);
+          localStorage.setItem("savedUsername", username);
+          alert(data.message);
+          window.location.href = "chat.html";
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        console.error("登录请求失败:", error);
+        alert("登录失败，请检查网络连接！");
       }
-    });
-
-    socket.on("disconnect", () => {
-      console.log("🔴 连接断开，尝试重连...");
-      setTimeout(() => {
-        socket.connect();
-      }, 3000);
     });
   </script>
 
