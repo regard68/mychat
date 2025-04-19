@@ -19,9 +19,10 @@ const publicPath = path.join(__dirname, "public");
 console.log("✅ 静态文件目录:", publicPath);
 app.use(express.static(publicPath));
 
-// ⬆️ 存储用户数据（用户名 -> 密码）
-const users = {}; // 内存中保存注册的用户
-const messages = []; // 内存中保存聊天记录
+// ⬆️ 存储用户数据
+const users = {}; // 用户名 -> 密码
+const messages = []; // 聊天记录
+const loggedUsers = new Set(); // 记录已登录过的用户
 let onlineUsers = {}; // 在线用户
 
 // ⬆️ 访问 `/` 返回 login.html
@@ -65,8 +66,15 @@ io.on("connection", (socket) => {
         onlineUsers[socket.id] = username;
         io.emit("update-user-list", Object.values(onlineUsers));
 
-        // 发送历史聊天记录给新用户
-        socket.emit("load-messages", messages);
+        // ✅ 判断是否是老用户
+        if (loggedUsers.has(username)) {
+            socket.emit("load-messages", messages); // 老用户发送历史记录
+        } else {
+            socket.emit("load-messages", []); // 新用户发送空的
+            loggedUsers.add(username); // 第一次加入后，记为老用户
+            console.log(`🆕 新用户 ${username} 第一次登录，发送空聊天记录`);
+        }
+
         console.log(`🔵 用户 ${username} 加入聊天`);
     });
 
