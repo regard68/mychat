@@ -19,10 +19,9 @@ const publicPath = path.join(__dirname, "public");
 console.log("✅ 静态文件目录:", publicPath);
 app.use(express.static(publicPath));
 
-// ⬆️ 存储用户数据
-const users = {}; // 用户名 -> 密码
-const messages = []; // 聊天记录
-const loggedUsers = new Set(); // 记录已登录过的用户
+// ⬆️ 存储用户数据（用户名 -> { password, 注册时间 }）
+const users = {}; // 保存注册信息
+const messages = []; // 保存聊天记录
 let onlineUsers = {}; // 在线用户
 
 // ⬆️ 访问 `/` 返回 login.html
@@ -37,7 +36,10 @@ app.post("/register", (req, res) => {
     if (!username || !password) return res.status(400).json({ message: "用户名或密码不能为空" });
     if (users[username]) return res.status(400).json({ message: "用户名已存在" });
 
-    users[username] = password;
+    users[username] = {
+        password,
+        registerTime: Date.now() // 注册的时间戳
+    };
     console.log(`✅ 用户注册成功: ${username}`);
     res.json({ message: "注册成功！" });
 });
@@ -45,7 +47,7 @@ app.post("/register", (req, res) => {
 // ⬆️ 用户登录接口
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
-    if (users[username] && users[username] === password) {
+    if (users[username] && users[username].password === password) {
         console.log(`✅ 用户 ${username} 登录成功`);
         return res.json({ message: "登录成功！", username });
     }
@@ -66,13 +68,13 @@ io.on("connection", (socket) => {
         onlineUsers[socket.id] = username;
         io.emit("update-user-list", Object.values(onlineUsers));
 
-        // ✅ 判断是否是老用户
-        if (loggedUsers.has(username)) {
-            socket.emit("load-messages", messages); // 老用户发送历史记录
+        // ➡️ 根据注册时间发送相应的聊天记录
+        if (users[username]) {
+            const userRegisterTime = users[username].registerTime;
+            const userMessages = messages.filter(msg => msg.timestampMs >= userRegisterTime);
+            socket.emit("load-messages", userMessages);
         } else {
-            socket.emit("load-messages", []); // 新用户发送空的
-            loggedUsers.add(username); // 第一次加入后，记为老用户
-            console.log(`🆕 新用户 ${username} 第一次登录，发送空聊天记录`);
+            socket.emit("load-messages", []); // 没有注册信息，保险处理
         }
 
         console.log(`🔵 用户 ${username} 加入聊天`);
@@ -80,11 +82,16 @@ io.on("connection", (socket) => {
 
     socket.on("send-message", ({ content }) => {
         let sender = onlineUsers[socket.id] || "匿名用户";
-        let timestamp = new Date().toLocaleString();
+        const timestampMs = Date.now(); // 精确保存时间戳
 
-        const msg = { sender, content, timestamp };
+        const msg = {
+            sender,
+            content,
+            timestamp: new Date(timestampMs).toLocaleString(),
+            timestampMs
+        };
         messages.push(msg);
-        if (messages.length > 50) messages.shift(); // 最多保留50条聊天记录
+        if (messages.length > 50) messages.shift(); // 最多保存50条
 
         io.emit("receive-message", msg);
         console.log(`📩 消息发送: ${sender}: ${content}`);
