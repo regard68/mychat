@@ -7,7 +7,7 @@ const { createClient } = require("@supabase/supabase-js");
 
 // Supabase 配置
 const supabaseUrl = "https://cvezrkgacfzowowdzarg.supabase.co";
-const supabaseKey = "你的服务端密钥（不暴露前端）";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2ZXpya2dhY2Z6b3dvd2R6YXJnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDY2Mjc3OCwiZXhwIjoyMDY2MjM4Nzc4fQ.mwS46U4a418fGjCfpbl1dyUAkb7GoRwiiHH5OW68OJQ";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const app = express();
